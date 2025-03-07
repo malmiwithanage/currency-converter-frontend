@@ -18,8 +18,7 @@ interface Transaction {
 export default function Home() {
   const countries = [
     { name: "USA", code: "USD" },
-    { name: "Canada", code: "CAD" },
-    { name: "UK", code: "GBP" },
+    { name: "Australia", code: "AUD" },
     { name: "India", code: "INR" },
     { name: "Sri Lanka", code: "LKR" },
   ];
