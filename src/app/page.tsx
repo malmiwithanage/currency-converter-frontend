@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { TextField, MenuItem, Button, Typography, Card, CardContent, Grid } from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 interface Transaction {
   _id: string;
@@ -56,7 +58,7 @@ export default function Home() {
 
         if (data.rates && data.rates[toCurrency]) {
           setExchangeRate(data.rates[toCurrency]);
-          setConvertedAmount(amount * data.rates[toCurrency]);
+          setConvertedAmount(amount * data.rates[toCurrency]); // Recalculate converted amount based on new rate
         }
       } catch (error) {
         console.error('Error fetching exchange rate:', error);
@@ -64,7 +66,7 @@ export default function Home() {
     };
 
     fetchExchangeRate();
-  }, [fromCurrency, toCurrency, amount]);
+  }, [fromCurrency, toCurrency, amount]); // Dependency on fromCurrency, toCurrency, and amount to trigger recalculation
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,148 +137,166 @@ export default function Home() {
   };
 
   return (
-    <div className="grid place-items-center min-h-screen p-8 bg-gray-100">
-      <form
-        onSubmit={handleFormSubmit}
-        className="w-full max-w-2xl bg-white p-8 rounded-lg shadow-md space-y-4"
-      >
-        <h1 className="text-3xl font-semibold text-center text-black mb-6">
-          Currency Conversion Form
-        </h1>
-
-        <div className="grid gap-4">
-          <div>
-            <label htmlFor="fromCountry" className="block text-sm font-medium text-black">
-              From Country
-            </label>
-            <select
-              id="fromCountry"
-              value={fromCountry}
-              onChange={(e) => {
-                const selectedCountry = countries.find(
-                  (country) => country.code === e.target.value
-                );
-                setFromCountry(e.target.value);
-                setFromCurrency(selectedCountry?.code || '');
-              }}
-              className="mt-1 block w-full p-2 border rounded-md text-black"
-            >
-              {countries.map((country) => (
-                <option key={country.code} value={country.code}>
-                  {country.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="toCountry" className="block text-sm font-medium text-black">
-              To Country
-            </label>
-            <select
-              id="toCountry"
-              value={toCountry}
-              onChange={(e) => {
-                const selectedCountry = countries.find(
-                  (country) => country.code === e.target.value
-                );
-                setToCountry(e.target.value);
-                setToCurrency(selectedCountry?.code || '');
-              }}
-              className="mt-1 block w-full p-2 border rounded-md text-black"
-            >
-              {countries.map((country) => (
-                <option key={country.code} value={country.code}>
-                  {country.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="fromCurrency" className="block text-sm font-medium text-black">
-              From Currency
-            </label>
-            <input
-              type="text"
-              id="fromCurrency"
-              value={fromCurrency}
-              className="mt-1 block w-full p-2 border rounded-md text-black"
-              disabled
-            />
-          </div>
-
-          <div>
-            <label htmlFor="toCurrency" className="block text-sm font-medium text-black">
-              To Currency
-            </label>
-            <input
-              type="text"
-              id="toCurrency"
-              value={toCurrency}
-              className="mt-1 block w-full p-2 border rounded-md text-black"
-              disabled
-            />
-          </div>
-
-          <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-black">
-              Amount
-            </label>
-            <input
-              type="number"
-              id="amount"
-              value={amount}
-              onChange={handleAmountChange}
-              className="mt-1 block w-full p-2 border rounded-md text-black"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="convertedAmount" className="block text-sm font-medium text-black">
-              Converted Amount
-            </label>
-            <input
-              type="number"
-              id="convertedAmount"
-              value={convertedAmount}
-              className="mt-1 block w-full p-2 border rounded-md text-black"
-              disabled
-            />
-          </div>
-
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              className="px-6 py-3 bg-blue-500 text-white rounded-md text-lg font-semibold"
-            >
-              Transfer
-            </button>
-          </div>
-        </div>
-      </form>
-
-      <div className="w-full max-w-2xl bg-white p-8 rounded-lg shadow-md mt-8">
-        <h2 className="text-xl font-semibold mb-4 text-black">Transaction History</h2>
-        <ul className="space-y-4">
-          {history.map((transaction) => (
-            <li key={transaction._id} className="border p-4 rounded-lg text-black">
-              <p><strong>From Country:</strong> {transaction.fromCountry}</p>
-              <p><strong>To Country:</strong> {transaction.toCountry}</p>
-              <p><strong>Amount:</strong> {transaction.amount}</p>
-              <p><strong>Converted Amount:</strong> {transaction.convertedAmount}</p>
-              <p><strong>Date:</strong> {transaction.date}</p>
-              <p><strong>Time:</strong> {transaction.time}</p>
-              <button
-                onClick={() => deleteTransaction(transaction._id)}
-                className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"
+    <div style={{ padding: '40px', backgroundColor: '#f5f5f5' }}>
+      {/* Currency Conversion Form */}
+      <Card variant="outlined" sx={{ maxWidth: 800, margin: '0 auto', padding: 3 }}>
+        <Typography variant="h4" align="center" sx={{ fontWeight: 'bold', marginBottom: 3 }}>
+          Transfer Your Money
+        </Typography>
+        <form onSubmit={handleFormSubmit}>
+          <Grid container spacing={3} direction="column">
+            {/* From Country */}
+            <Grid item>
+              <TextField
+                select
+                label="From Country"
+                value={fromCountry}
+                onChange={(e) => {
+                  setFromCountry(e.target.value);
+                  setFromCurrency(e.target.value); // Update fromCurrency based on the selected country
+                }}
+                fullWidth
+                variant="outlined"
+                color="primary"
               >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+                {countries.map((country) => (
+                  <MenuItem key={country.code} value={country.code}>
+                    {country.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            {/* To Country */}
+            <Grid item>
+              <TextField
+                select
+                label="To Country"
+                value={toCountry}
+                onChange={(e) => {
+                  setToCountry(e.target.value);
+                  setToCurrency(e.target.value); // Update toCurrency based on the selected country
+                }}
+                fullWidth
+                variant="outlined"
+                color="primary"
+              >
+                {countries.map((country) => (
+                  <MenuItem key={country.code} value={country.code}>
+                    {country.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+
+            {/* Amount */}
+            <Grid item>
+              <TextField
+                label="Amount"
+                type="number"
+                value={amount}
+                onChange={handleAmountChange}
+                fullWidth
+                variant="outlined"
+                color="primary"
+              />
+            </Grid>
+
+            {/* From Currency */}
+            <Grid item>
+              <TextField
+                label="From Currency"
+                value={fromCurrency}
+                disabled
+                fullWidth
+                variant="outlined"
+                color="primary"
+              />
+            </Grid>
+
+            {/* To Currency */}
+            <Grid item>
+              <TextField
+                label="To Currency"
+                value={toCurrency}
+                disabled
+                fullWidth
+                variant="outlined"
+                color="primary"
+              />
+            </Grid>
+
+            {/* Converted Amount */}
+            <Grid item>
+              <TextField
+                label="Converted Amount"
+                value={convertedAmount}
+                disabled
+                fullWidth
+                variant="outlined"
+                color="primary"
+              />
+            </Grid>
+
+            {/* Submit Button */}
+            <Grid item>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                sx={{ padding: '12px', fontWeight: 'bold' }}
+              >
+                Transfer
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </Card>
+
+      {/* Transaction History */}
+      <Card variant="outlined" sx={{ maxWidth: 800, margin: '40px auto', padding: 3 }}>
+        <Typography variant="h5" sx={{ marginBottom: 2 }}>
+          Transaction History
+        </Typography>
+        {history.length === 0 ? (
+          <Typography variant="body1" color="textSecondary">
+            No transaction history available.
+          </Typography>
+        ) : (
+          history.map((transaction) => (
+            <Card key={transaction._id} sx={{ marginBottom: 2 }}>
+              <CardContent>
+                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                  <strong>From Country:</strong> {transaction.fromCountry}
+                </Typography>
+                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                  <strong>To Country:</strong> {transaction.toCountry}
+                </Typography>
+                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                  <strong>Amount:</strong> {transaction.amount}
+                </Typography>
+                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                  <strong>Converted Amount:</strong> {transaction.convertedAmount}
+                </Typography>
+                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                  <strong>Date:</strong> {transaction.date}
+                </Typography>
+                <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                  <strong>Time:</strong> {transaction.time}
+                </Typography>
+                <Button
+                  onClick={() => deleteTransaction(transaction._id)}
+                  variant="outlined"
+                  color="error"
+                >
+                  Delete
+                </Button>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </Card>
     </div>
   );
 }
